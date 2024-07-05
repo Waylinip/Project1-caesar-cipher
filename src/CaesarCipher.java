@@ -19,7 +19,7 @@ public class CaesarCipher {
 
         System.out.println("Введите ключ сдвига (число): ");
         int key = scanner.nextInt();
-        scanner.nextLine(); // очистка буфера
+        scanner.nextLine();
 
         System.out.println("Введите название входного файла: ");
         String inputFileName = scanner.nextLine();
@@ -28,13 +28,13 @@ public class CaesarCipher {
         String outputFileName = scanner.nextLine();
 
 
-
         if (mode.equals("encrypt")) {
             System.out.println("Введите текст для записи в файл: ");
             String textToWrite = scanner.nextLine().toLowerCase();
             writeToFile(inputFileName, textToWrite);
         }
         String fileContent = readFromFile(inputFileName);
+        System.out.println("Файл содержит : " + fileContent);
 
         if (mode.equals("encrypt")) {
             cipher.encrypt(inputFileName, outputFileName, key);
@@ -44,6 +44,7 @@ public class CaesarCipher {
             System.out.println("Расшифровка завершена.");
         }
     }
+
     public static void writeToFile(String filePath, String text) {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath))) {
             writer.write(text);
@@ -57,49 +58,52 @@ public class CaesarCipher {
         StringBuilder text = new StringBuilder();
         try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
             String line;
-           while((line = reader.readLine()) != null){
-               text.append(line);
-           }
+            while ((line = reader.readLine()) != null) {
+                text.append(line);
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
         return text.toString();
     }
-    private String shiftText(String text, int key) {
-       StringBuilder result = new StringBuilder();
-        for (char c: text.toCharArray()) {
-            result.append(shiftCharacter(c,key));
+
+    private static char shiftCharacter(char symbol, int key) {
+        ALPHABET.indexOf(symbol);
+        if (ALPHABET.contains(symbol)) {
+            return ALPHABET.get((ALPHABET.indexOf(symbol) + key) % ALPHABET.size());
+        } else {
+            return symbol;
         }
-        return result.toString();
     }
-  private static char shiftCharacter(char symbol , int key ) {
-      ALPHABET.indexOf(symbol);
-      if ( ALPHABET.indexOf(symbol) != -1) {
-         return ALPHABET.get((ALPHABET.indexOf(symbol)+key)% ALPHABET.size());
-      } else {
-          return symbol;
-      }
-  }
 
-    public void encrypt(String inputFile, String outputFile, int key ) {
-String text = readFromFile(inputFile);
-String encrypted = shiftText(text,key);
-writeToFile(outputFile,encrypted);
-
-
-        }
-
-    public void decrypt(String inputFile, String outputFile, int key) {
-        String inputText = readFromFile(inputFile);
-        String decryptedText = shiftText(inputText, -key);
-        writeToFile(outputFile, decryptedText);
-    }
     private static List<Character> createAlphabet() {
         List<Character> alphabet = new ArrayList<>();
         for (char c = 'a'; c <= 'z'; c++) {
             alphabet.add(c);
         }
         return alphabet;
+    }
+
+    private String shiftText(String text, int key) {
+        StringBuilder result = new StringBuilder();
+        for (char c : text.toCharArray()) {
+            result.append(shiftCharacter(c, key));
+        }
+        return result.toString();
+    }
+
+    public void encrypt(String inputFile, String outputFile, int key) {
+        String text = readFromFile(inputFile);
+        String encrypted = shiftText(text, key);
+        writeToFile(outputFile, encrypted);
+
+
+    }
+
+    public void decrypt(String inputFile, String outputFile, int key) {
+        String inputText = readFromFile(inputFile);
+        String decryptedText = shiftText(inputText, -key);
+        writeToFile(outputFile, decryptedText);
     }
 
 }
